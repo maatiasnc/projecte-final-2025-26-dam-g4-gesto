@@ -81,17 +81,6 @@
           </div>
         </footer>
       </div>
-
-      <div v-else-if="paginaActual === 'traductor'" key="traductor" class="translator-view">
-        <div class="container">
-          <h2 data-aos="fade-down">Mode de Traducció</h2>
-          <div class="camera-feed visual-placeholder" data-aos="zoom-in">
-             <p>[ Càmera activa... ]</p>
-          </div>
-          <button class="btn-outline" @click="simularNav('home')">TORNAR</button>
-        </div>
-      </div>
-
     </transition>
   </div>
 </template>
