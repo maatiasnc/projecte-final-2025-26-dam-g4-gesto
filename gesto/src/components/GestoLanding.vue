@@ -149,8 +149,7 @@ export default {
     },
     simularNav(desti) {
       if (desti === 'traductor') {
-        this.paginaActual = desti;
-        setTimeout(() => AOS.refresh(), 100);
+        this.$router.push('/Camara');
       } else if (desti === 'home') {
         // If we are already on home (which renders this component), just reset internal state if needed
         this.paginaActual = 'home';
