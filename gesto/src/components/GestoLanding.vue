@@ -9,7 +9,13 @@
           GESTO
         </div>
         <div class="nav-links">
-          <button @click="simularNav('login')">INICIAR SESSIÓ</button>
+          <template v-if="user">
+            <span class="user-greeting">Hola, {{ user.name }}</span>
+            <button @click="logout" class="btn-logout">TANCAR SESSIÓ</button>
+          </template>
+          <template v-else>
+            <button @click="simularNav('login')">INICIAR SESSIÓ</button>
+          </template>
         </div>
       </nav>
     </div>
@@ -72,13 +78,21 @@
 
         <footer>
           <div class="container">
-            <p class="footer-cta">Vols guardar el teu historial?</p>
-            <div class="footer-links">
-              <a href="#" @click.prevent="simularNav('login')">Iniciar Sessió</a>
-              <span class="separator">|</span>
-              <a href="#" @click.prevent="simularNav('registre')">Crear Compte</a>
+            <template v-if="!user">
+              <p class="footer-cta">Vols guardar el teu historial?</p>
+              <div class="footer-links">
+                <a href="#" @click.prevent="simularNav('login')">Iniciar Sessió</a>
+                <span class="separator">|</span>
+                <a href="#" @click.prevent="simularNav('registre')">Crear Compte</a>
+              </div>
+            </template>
+            <template v-else>
+               <p class="footer-cta">Preparat per comunicar-te?</p>
+               <div class="footer-links">
+                  <a href="#" @click.prevent="simularNav('traductor')">COMENÇAR A TRADUIR</a>
+               </div>
+            </template>
             </div>
-          </div>
         </footer>
       </div>
     </transition>
@@ -94,10 +108,30 @@ export default {
   name: 'GestoLanding',
   data() {
     return {
-      paginaActual: 'home'
+      paginaActual: 'home',
+      user: null
     }
   },
   mounted() {
+    // Check for user session
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    
+    if (token) {
+      if (userStr) {
+        try {
+          this.user = JSON.parse(userStr);
+        } catch (e) {
+          console.error('Error parsing user data', e);
+          // If parse fails but we have token, we might want to fetch user profile or just clear session
+        }
+      } else {
+        // Fallback if no user object but token exists (e.g. from previous login impl)
+        // Ideally fetch profile here, for now just show generic logged in state
+         this.user = { name: 'Usuari' }; 
+      }
+    }
+
     // INICIALIZAMOS AOS AL MONTAR EL COMPONENTE
     AOS.init({
       offset: 100,      // distancia en px antes de activar la animación
@@ -107,6 +141,12 @@ export default {
     });
   },
   methods: {
+    logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.user = null;
+      this.$router.push('/');
+    },
     simularNav(desti) {
       if (desti === 'traductor') {
         this.paginaActual = desti;
@@ -119,6 +159,8 @@ export default {
         this.$router.push('/login');
       } else if (desti === 'registre') {
         this.$router.push('/register');
+      } else if (desti === 'logout') {
+        this.logout();
       } else if (desti === 'com-funciona') {
          // Keep existing logic or add route if exists
          console.log('Com funciona clicked');
@@ -203,6 +245,29 @@ nav {
   transition: color 0.3s;
 }
 .nav-links button:hover { color: #fff; }
+
+.user-greeting {
+  color: #fff;
+  margin-right: 20px;
+  font-weight: 500;
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid #333;
+  color: #A0A0A0;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-logout:hover {
+  border-color: #ffca28;
+  color: #ffca28;
+}
 
 .hero {
   height: 85vh;
